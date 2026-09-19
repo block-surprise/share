@@ -2,94 +2,111 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5f5f7">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="daboxair">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="/icon.svg">
-<title>ShareFlow</title>
 <link rel="stylesheet" href="style.css">
+<title>daboxair</title>
 </head>
 <body>
-<div class="app">
+<div id="app">
   <header class="topbar">
     <div>
-      <div class="eyebrow">SHAREFLOW</div>
-      <h1 id="pageTitle">ホーム</h1>
+      <div class="brand">daboxair</div>
+      <div id="statusText" class="status">接続しています…</div>
     </div>
-    <div class="connection"><span id="dot"></span><span id="connectionText">接続中…</span></div>
+    <button class="icon-btn" id="shareCodeBtn" aria-label="共有コード">⌘</button>
   </header>
 
-  <main id="content">
+  <main id="main">
     <section class="page active" data-page="home">
-      <div class="hero-card glass">
-        <div class="hero-icon">↗</div>
-        <div>
-          <div class="hero-title">Windowsへ送る</div>
-          <div class="hero-sub">テキストや画像をすぐに共有できます。</div>
+      <div class="hero">
+        <span class="eyebrow">QUICK SHARE</span>
+        <h1>すぐ送る。</h1>
+        <p>iPhoneからWindowsへ、テキストやファイルをかんたんに共有。</p>
+      </div>
+      <div class="card send-card">
+        <textarea id="textInput" maxlength="5000" placeholder="送信するテキストを入力…"></textarea>
+        <div class="input-footer"><span id="charCount">0 / 5000</span><button class="small-btn" id="clearBtn">クリア</button></div>
+        <div id="attachments" class="attachments"></div>
+        <div class="actions">
+          <button class="secondary-btn" id="attachBtn">＋ ファイル</button>
+          <button class="primary-btn" id="sendBtn">送信する</button>
         </div>
+        <input id="fileInput" type="file" multiple hidden>
       </div>
-
-      <label class="label">メッセージ</label>
-      <textarea id="message" placeholder="ここに入力…" maxlength="5000"></textarea>
-      <div class="composer-row">
-        <button class="secondary" id="imageBtn">＋ 画像</button>
-        <span id="charCount">0 / 5000</span>
-      </div>
-      <input id="imageInput" type="file" accept="image/*" hidden>
-      <div id="preview"></div>
-      <button class="primary" id="sendBtn">送信</button>
-
-      <div class="section-head"><span>最近の送信</span><button class="link" data-go="history">すべて見る</button></div>
-      <div id="recent" class="history-list"></div>
+      <div class="section-title"><span>クイック送信</span><button id="addQuickBtn">＋追加</button></div>
+      <div id="quickList" class="quick-list"></div>
     </section>
 
     <section class="page" data-page="history">
-      <div class="search"><span>⌕</span><input id="search" placeholder="履歴を検索"></div>
-      <div id="history" class="history-list"></div>
-      <button class="danger ghost" id="clearHistory">履歴をすべて削除</button>
+      <div class="page-head"><h2>履歴</h2><button class="small-btn" id="clearHistoryBtn">すべて削除</button></div>
+      <div class="search"><span>⌕</span><input id="historySearch" placeholder="履歴を検索"></div>
+      <div id="historyList" class="history-list"></div>
     </section>
 
     <section class="page" data-page="send">
-      <div class="big-action glass">
-        <div class="big-icon">↗</div><h2>送信</h2><p>Windowsへ共有する内容を選択してください。</p>
+      <div class="page-head"><h2>送信</h2></div>
+      <div class="card">
+        <h3>送信先</h3>
+        <div id="sendDevices" class="device-list"></div>
+        <p class="hint">ペアリングしたデバイスへ送信されます。</p>
       </div>
-      <button class="menu-card" data-focus="message"><b>テキスト</b><span>メッセージを送信</span><i>›</i></button>
-      <button class="menu-card" id="imageBtn2"><b>画像</b><span>写真やスクリーンショットを送信</span><i>›</i></button>
+      <div class="card">
+        <h3>共有</h3>
+        <p>ホーム画面からテキストを入力して送信できます。</p>
+        <button class="primary-btn full" id="focusTextBtn">入力欄を開く</button>
+      </div>
     </section>
 
     <section class="page" data-page="devices">
-      <div class="device-card glass">
-        <div class="device-icon">▣</div>
-        <div><b>このデバイス</b><span>iPhone / Web App</span></div><em>●</em>
+      <div class="page-head"><h2>デバイス</h2><span id="connectionDot" class="dot"></span></div>
+      <div class="card pairing">
+        <div class="pair-icon">⌁</div>
+        <h3>デバイスを追加</h3>
+        <p>Windows側に表示された6桁コードを入力してください。</p>
+        <div class="code-row">
+          <input id="pairInput" inputmode="numeric" maxlength="6" placeholder="000000">
+          <button class="primary-btn" id="pairBtn">接続</button>
+        </div>
       </div>
-      <div class="qr-card">
-        <h2>Windowsを接続</h2>
-        <p>Windows側でこのWebアプリを開いて接続してください。</p>
-        <div class="qr-placeholder">QR</div>
-        <button class="secondary full" id="copyUrl">接続URLをコピー</button>
-      </div>
-      <p class="note">現在のスターター版では、同じサーバーに接続した端末へリアルタイム送信します。</p>
+      <div class="section-title"><span>接続中のデバイス</span></div>
+      <div id="deviceList" class="device-list"></div>
     </section>
 
     <section class="page" data-page="settings">
+      <div class="page-head"><h2>設定</h2></div>
       <div class="settings-group">
-        <div class="settings-row"><span>外観</span><select id="theme"><option value="system">システムに合わせる</option><option value="light">ライト</option><option value="dark">ダーク</option></select></div>
-        <div class="settings-row"><span>履歴の保存</span><label class="switch"><input id="saveHistory" type="checkbox" checked><span></span></label></div>
-        <div class="settings-row"><span>送信後に入力を消去</span><label class="switch"><input id="clearAfter" type="checkbox" checked><span></span></label></div>
+        <div class="setting"><div><b>テーマ</b><small>表示スタイル</small></div><select id="themeSelect"><option value="system">システム</option><option value="light">ライト</option><option value="dark">ダーク</option></select></div>
+        <div class="setting"><div><b>履歴を保存</b><small>送受信した内容をこの端末に保存</small></div><input id="saveHistory" type="checkbox" checked></div>
+        <div class="setting"><div><b>送信後に入力欄をクリア</b><small>送信が完了したら自動で消去</small></div><input id="clearAfterSend" type="checkbox" checked></div>
+        <div class="setting"><div><b>通知</b><small>受信時に通知を表示</small></div><input id="notifications" type="checkbox"></div>
       </div>
-      <div class="about glass"><b>ShareFlow</b><span>iPhone ⇄ Windows テキスト共有</span><small>Starter v1.0</small></div>
+      <div class="card about"><b>daboxair</b><span>iPhone ⇄ Windows sharing</span><small>サーバー接続型のプライベート共有ツール</small></div>
     </section>
   </main>
 
   <nav class="tabbar">
-    <button class="tab active" data-tab="home"><span>⌂</span><small>ホーム</small></button>
-    <button class="tab" data-tab="history"><span>◷</span><small>履歴</small></button>
-    <button class="tab" data-tab="send"><span>↗</span><small>送信</small></button>
-    <button class="tab" data-tab="devices"><span>▣</span><small>デバイス</small></button>
-    <button class="tab" data-tab="settings"><span>⚙</span><small>設定</small></button>
+    <button class="tab active" data-target="home"><span>⌂</span><small>ホーム</small></button>
+    <button class="tab" data-target="history"><span>◷</span><small>履歴</small></button>
+    <button class="tab center" data-target="send"><span>↑</span><small>送信</small></button>
+    <button class="tab" data-target="devices"><span>▣</span><small>デバイス</small></button>
+    <button class="tab" data-target="settings"><span>⚙</span><small>設定</small></button>
   </nav>
 </div>
-<div id="toast" class="toast"></div>
+
+<div id="toast"></div>
+<div id="modal" class="modal hidden">
+  <div class="modal-sheet">
+    <button class="close" id="closeModal">×</button>
+    <h2>共有コード</h2><p>Windows側で発行した6桁コードを入力してください。</p>
+    <input id="modalCode" class="big-code" inputmode="numeric" maxlength="6" placeholder="000000">
+    <button class="primary-btn full" id="modalPair">ペアリング</button>
+  </div>
+</div>
 <script src="app.js"></script>
 </body>
 </html>
